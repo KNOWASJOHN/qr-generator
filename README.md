@@ -25,7 +25,7 @@ A modern, customizable QR code generator web application with real-time color cu
 ![Light Theme Screenshot](https://github.com/KNOWASJOHN/qr-generator/blob/main/Screenshot%202025-05-31%20122025.png?raw=true)
 
 ### Dark Theme
-![Dark Theme Screenshot](https://github.com/KNOWASJOHN/qr-generator/blob/main/Screenshot%202025-05-31%20122025.png?raw=true)
+![Dark Theme Screenshot](https://github.com/KNOWASJOHN/qr-generator/blob/main/Screenshot%202025-05-31%20122038.png?raw=true)
 
 ## 🛠️ Technology Stack
 
