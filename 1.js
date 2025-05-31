@@ -111,14 +111,44 @@ form.addEventListener('submit', async (e) => {
     errorDiv.style.display = 'none';
 
     try {
-        // For demo purposes, we'll simulate the API call with a mock QR code
-        // In production, this would call your actual API endpoint
-        const mockQRCode = await generateMockQRCode(url, fillColor, backColor);
+        // Call the actual Vercel API endpoint
+        const response = await fetch('/api/generate_qr', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                url: url,
+                fill_color: fillColor,
+                back_color: backColor
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to generate QR code');
+        }
+
+        // Set the image with proper data URI
+        currentImageData = data.image;
+        qrImage.src = `data:image/png;base64,${data.image}`;
         
-        currentImageData = mockQRCode;
-        qrImage.src = `data:image/png;base64,${mockQRCode}`;
-        result.style.display = 'block';
-        showSuccess('QR Code generated successfully!');
+        // Wait for image to load before showing result
+        qrImage.onload = function() {
+            result.style.display = 'block';
+            showSuccess('QR Code generated successfully!');
+        };
+        
+        qrImage.onerror = function() {
+            showError('Failed to load generated QR code image');
+            result.style.display = 'none';
+        };
 
     } catch (error) {
         console.error('Error:', error);
@@ -128,18 +158,6 @@ form.addEventListener('submit', async (e) => {
         loading.style.display = 'none';
     }
 });
-
-// Mock QR code generator for demo purposes
-async function generateMockQRCode(url, fillColor, backColor) {
-    // This is a simple mock - in reality, this would be handled by your Python backend
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            // This is a base64 encoded small QR code image for demo
-            const mockBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TpSIVBzuIOGSoThZERRy1CkWohFqhVQdz6YdQm5Ik1cXRdXBtcPCjddXBVQdXQFBXB9e3FHfzgkj8h+TlbBs3Ll7S+/+Bv5mTc67gOx1wC80ZKzYhkcpkRW9HkUAqQFSkGDCj0FeP3+cE7rP4Kqk6xo5o9nGfRLQOms8jnmqkUbSfGGkxaiPGF12TBt0iXhPpMaE5xJcJI5a4Qey4sS7YLxKbJplJ/E46ZrW9OJGULgAriCzaRhspKFaZ5EhyiiMEsifIUlMu8ePG4iLjAtZiQIy7v/QHjr2GlHmroJLBeE6h7SLFF5a7S/u9l2SqExJSBBg9RHgfkUy0MhcnV3w5QvCkA8pVK8cKBKrSNiTzUqalFnHPh6+f4D39+kJP6tKc5ib';
-            resolve(mockBase64);
-        }, 1000);
-    });
-}
 
 downloadBtn.addEventListener('click', () => {
     if (currentImageData) {
