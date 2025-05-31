@@ -23,7 +23,7 @@ class handler(BaseHTTPRequestHandler):
             data = json.loads(post_data.decode('utf-8'))
             
             # Extract parameters
-            url = data.get('url')
+            url = data.get('url','')
             fill_color = data.get('fill_color', '#000000')
             back_color = data.get('back_color', '#ffffff')
             
