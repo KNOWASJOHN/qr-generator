@@ -1,2 +1,1 @@
 "# qr-generator" 
-"# qr-generator" 
