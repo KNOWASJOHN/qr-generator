@@ -1,3 +1,4 @@
+# Fixed generate_qr.py
 from http.server import BaseHTTPRequestHandler
 import json
 import qrcode
@@ -23,7 +24,7 @@ class handler(BaseHTTPRequestHandler):
             data = json.loads(post_data.decode('utf-8'))
             
             # Extract parameters
-            url = data.get('url','')
+            url = data.get('url', '')
             fill_color = data.get('fill_color', '#000000')
             back_color = data.get('back_color', '#ffffff')
             
@@ -36,7 +37,7 @@ class handler(BaseHTTPRequestHandler):
             if not parsed_url.scheme:
                 url = 'https://' + url
             
-            # Create QR code
+            # Create QR code with optimal settings
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -49,9 +50,14 @@ class handler(BaseHTTPRequestHandler):
             # Create image with custom colors
             img = qr.make_image(fill_color=fill_color, back_color=back_color)
             
-            # Convert to base64
+            # Convert PIL Image to RGB mode if needed (fixes format issues)
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+            
+            # Convert to base64 with proper PNG format
             buffer = io.BytesIO()
-            img.save(buffer, format='PNG')
+            img.save(buffer, format='PNG', optimize=True)
+            buffer.seek(0)
             img_data = buffer.getvalue()
             img_base64 = base64.b64encode(img_data).decode('utf-8')
             
@@ -59,7 +65,8 @@ class handler(BaseHTTPRequestHandler):
             response = {
                 'success': True,
                 'image': img_base64,
-                'url': url
+                'url': url,
+                'format': 'PNG'
             }
             
             self.wfile.write(json.dumps(response).encode('utf-8'))
