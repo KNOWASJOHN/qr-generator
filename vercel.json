@@ -1,7 +1,1 @@
-{
-  "functions": {
-    "api/generate_qr.py": {
-      "runtime": "@vercel/python"
-    }
-  }
-}
+{}
